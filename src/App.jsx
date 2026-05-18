@@ -79,12 +79,22 @@ export default function App() {
   const registrarCitaEnBase = async () => {
     setCargando(true);
     try {
+      // Convertimos el horario en segundo plano de "11:00 AM" a "11:00:00" solo para Supabase
+      let horaFormateada = reserva.horario;
+      if (reserva.horario && reserva.horario.includes(' ')) {
+        const [tiempo, meridiano] = reserva.horario.split(' ');
+        let [horas, minutos] = tiempo.split(':').map(Number);
+        if (meridiano === 'PM' && horas !== 12) horas += 12;
+        if (meridiano === 'AM' && horas === 12) horas = 0;
+        horaFormateada = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:00`;
+      }
+
       const { error } = await supabase
         .from('citas2')
         .insert([
           {
             fecha: reserva.fecha,
-            horario: reserva.horario,
+            horario: horaFormateada, // Envía el formato correcto a la base de datos
             servicio: reserva.servicio,
             nota: reserva.nota
           }
@@ -344,33 +354,47 @@ export default function App() {
                 )}
 
                 {step === 2 && (
-                  <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                    <div>
-                      <label className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-3 block">Paso 2: Selecciona el Día</label>
-                      {/* CONTENEDOR REVISADO PARA ELIMINAR EL BLOQUEO EN MÓVILES */}
-                      <div className="flex gap-2.5 overflow-x-auto pb-4 scrolling-touch relative z-10">
-                        {generarProximosDias().map((f, i) => {
-                          const isSel = f.toDateString() === fechaSeleccionada.toDateString();
-                          return (
-                            <button 
-                              key={i} 
-                              type="button"
-                              onClick={() => setFechaSeleccionada(f)} 
-                              className={`flex-shrink-0 w-16 h-20 rounded-2xl flex flex-col items-center justify-center border transition-all ${isSel ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}
-                            >
-                              <span className="text-[9px] font-bold uppercase mb-1">{f.toLocaleDateString('es', {weekday: 'short'})}</span>
-                              <span className="text-xl font-black">{f.getDate()}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-3 block">Horas Disponibles hoy</label>
-                      {renderHorarios()}
-                    </div>
-                  </motion.div>
-                )}
+  <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
+    <div>
+      {/* SECCIÓN CORREGIDA CON EL BOTÓN PARA REGRESAR AL PASO 1 */}
+      <div className="flex justify-between items-center mb-3">
+        <label className="text-[11px] font-black uppercase text-slate-400 tracking-wider block">Paso 2: Selecciona el Día</label>
+        <button 
+          onClick={() => setStep(1)} 
+          className="text-[11px] font-bold text-blue-600 hover:text-slate-900 transition-colors flex items-center gap-1"
+        >
+          ← Cambiar tratamiento
+        </button>
+      </div>
+      
+      {/* CONTENEDOR DE DÍAS (Mantiene el scroll fluido de celular) */}
+      <div className="w-full overflow-x-auto overflow-y-hidden pt-1 pb-3 flex gap-2 scrollbar-thin touch-pan-x">
+        {generarProximosDias().map((f, i) => {
+          const isSel = f.toDateString() === fechaSeleccionada.toDateString();
+          return (
+            <button 
+              key={i} 
+              type="button"
+              onClick={() => setFechaSeleccionada(f)} 
+              className={`flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center border transition-all ${
+                isSel 
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100' 
+                  : 'bg-white border-slate-200 text-slate-500'
+              }`}
+            >
+              <span className="text-[8px] font-bold uppercase mb-0.5">{f.toLocaleDateString('es', {weekday: 'short'})}</span>
+              <span className="text-base font-black">{f.getDate()}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+    <div>
+      <label className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-3 block">Horas Disponibles hoy</label>
+      {renderHorarios()}
+    </div>
+  </motion.div>
+)}
 
                 {step === 3 && (
                   <motion.div key="s3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
