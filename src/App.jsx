@@ -27,7 +27,7 @@ export default function App() {
 
   const servicios = [
     { id: 1, nombre: 'Diseño de Sonrisa', precio: 'Valoración Gratis', icon: <Sparkles size={24} />, desc: 'Carillas y estética avanzada con tecnología digital.', img: 'https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=800' },
-    { id: 2, nombre: 'Ortodoncia Invisible', precio: 'Desde $1,200/mes', icon: <ShieldCheck size={24} />, desc: 'Alineadores transparentes y cómodos (Invisalign).', img: 'https://images.unsplash.com/photo-1593054982245-5342a58d601b?q=80&w=800' },
+    { id: 2, nombre: 'Ortodoncia Invisible', precio: 'Desde $1,200/mes', icon: <ShieldCheck size={24} />, desc: 'Alineadores transparentes y cómodos (Invisalign).', img: 'https://cuidateplus.marca.com/sites/default/files/styles/natural/public/cms/odontologia-invisible.jpg.webp?itok=Zay4ZgcF' },
     { id: 3, nombre: 'Implantes Dentales', precio: 'Consúltanos', icon: <Stethoscope size={24} />, desc: 'Restauración funcional permanente y sin dolor.', img: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=800' }
   ];
 
