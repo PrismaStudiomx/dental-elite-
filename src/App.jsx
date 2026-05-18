@@ -264,7 +264,7 @@ export default function App() {
             </button>
           </motion.div>
           <div className="relative">
-            <img src="" className="rounded-[2.5rem] shadow-2xl border border-white w-full h-auto object-cover" alt="Especialista Dental" />
+            
           </div>
         </div>
       </section>
