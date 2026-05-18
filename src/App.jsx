@@ -52,28 +52,47 @@ export default function App() {
     });
   };
 
-  // CONSULTAR DISPONIBILIDAD
-  useEffect(() => {
-    const consultarDisponibilidad = async () => {
-      setOcupados([]); 
-      const fechaFiltro = formatearFecha(fechaSeleccionada);
-      try {
-        const { data, error } = await supabase
-          .from('citas2')
-          .select('horario')
-          .eq('fecha', fechaFiltro);
+  // CONSULTAR DISPONIBILIDAD (CORREGIDO PARA ADAPTAR EL FORMATO MILITAR)
+  useEffect(() => {
+    const consultarDisponibilidad = async () => {
+      setOcupados([]); 
+      const fechaFiltro = formatearFecha(fechaSeleccionada);
+      try {
+        const { data, error } = await supabase
+          .from('citas2')
+          .select('horario')
+          .eq('fecha', fechaFiltro);
 
-        if (error) throw error;
-   
-        if (data) {
-          setOcupados(data.map(cita => cita.horario));
-        }
-      } catch (err) {
-        console.error("Error al consultar Supabase:", err.message);
-      }
-    };
-    consultarDisponibilidad();
-  }, [fechaSeleccionada]);
+        if (error) throw error;
+   
+        if (data) {
+          // Traducimos los formatos de la base de datos para que hagan Match con tus botones
+          const horariosMapeados = data.map(cita => {
+            if (!cita.horario) return '';
+            
+            // Si el horario de la base de datos viene en formato militar "11:00:00" o "16:00:00"
+            if (cita.horario.includes(':') && !cita.horario.includes('M')) {
+              const [h, m] = cita.horario.split(':');
+              let horaNum = parseInt(h, 10);
+              const meridiano = horaNum >= 12 ? 'PM' : 'AM';
+              
+              horaNum = horaNum % 12;
+              horaNum = horaNum ? horaNum : 12; // Si es 0 lo convierte en 12
+              
+              return `${String(horaNum).padStart(2, '0')}:${m} ${meridiano}`;
+            }
+            
+            return cita.horario; // Si ya venía como "11:00 AM", lo deja igual
+          });
+
+          setOcupados(horariosMapeados);
+        }
+      } catch (err) {
+        console.error("Error al consultar Supabase:", err.message);
+      }
+    };
+    consultarDisponibilidad();
+  }, [fechaSeleccionada]);
 
   // INSERTAR EN LA BASE DE DATOS
   const registrarCitaEnBase = async () => {
